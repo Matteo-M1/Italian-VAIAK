@@ -5,20 +5,11 @@ library(ggdist)
 
 #-----------------1. Read raw data-----------------
 
-VAIAK = read.csv(file = "C:/Users/matte/OneDrive/Desktop/VAIAK/Italian VAIAK/Data italian VAIAK/VAIAK+ITA_21+dicembre+2025_14.55.csv", 
+VAIAK = read.csv(file = , 
                  header=T,sep=",")
 
-VAIAK_1 = read.csv(file = "C:/Users/matte/OneDrive/Desktop/VAIAK/Italian VAIAK/Data italian VAIAK/VAIAK+ITA+-+Copia_21+dicembre+2025_14.57.csv", 
-                   header=T,sep=",")
-
-VAIAK = bind_rows(VAIAK, VAIAK_1)
-
-colnames(VAIAK)[ncol(VAIAK)] = "Participant_ID"
-
-rm(VAIAK_1)
-
 #-----------------2. Clean data-----------------
-#    eliminate noisy rows and columns, fix age, gender, art history and art job
+#    fix age, gender, art history and art job
 #    ensure that Part A, B and C are numeric
 
 
@@ -26,13 +17,13 @@ VAIAK = VAIAK %>%
   mutate(n_na = rowSums(is.na(.))) %>%          # order based on NA
   arrange(n_na) %>%
   dplyr::select(-n_na) %>%
-  distinct(Participant_ID,.keep_all = TRUE) %>%                # To remove same ID
-  
-  slice(-c(1:2))  %>%                   # drop first row
-  dplyr::select(-c(1:17)) %>%                # drop first 17 columns
+  distinct(Participant_ID,.keep_all = TRUE)   %>%         # To remove same ID
+ 
+mutate(
+  Participant_ID = as.numeric(Participant_ID))  %>%
   
   mutate(
-    D_Expertise = factor(case_when(
+    D_Expertise = factor(case_when(                # art expertise
       D4_ArtHist == 1 & D5_ArtJob == 1 ~ "Lay person",
       D5_ArtJob == 2 | D4_ArtHist %in% c(2,3)  ~ "Expert",
       TRUE     ~ NA_character_))) %>%
@@ -57,17 +48,8 @@ VAIAK = VAIAK %>%
   mutate(
     across(starts_with("AI"), as.numeric),              # Part A as numeric
     across(starts_with("B"), as.numeric),               # Part B as numeric
-    across(starts_with("C") & ends_with("B"), as.numeric),                  # Part C as numeric 
+    across(starts_with("C") & ends_with("B"), as.numeric))                  # Part C as numeric 
     
-    Participant_ID = as.numeric(Participant_ID)) %>% 
-  
-  mutate(
-    Language = factor("Italian"))  %>% 
-
-  filter(Participant_ID != "865964") %>%  # Spanish speaker
-  filter(!is.na(D_Expertise))  # NA expertise
-
-VAIAK$D_Expertise
 
 #-----------------3. Score part B-----------------
 # Give 1 to the correct answers of Part B
@@ -193,6 +175,6 @@ VAIAK = VAIAK %>%
 #-----------------6. Export data set-----------------
 
 write.csv(VAIAK,
-          "C:\\Users\\matte\\OneDrive\\Desktop\\VAIAK.csv")
+          )
 
 
