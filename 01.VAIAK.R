@@ -160,7 +160,7 @@ VAIAK = VAIAK %>%
 
 
 #-----------------5. Additional variables-----------------
-# Add sums of Part A, Part B, Part C and Art Knoweldge
+# Add sums of Part A, Part B, Part C and Art Knowldge
 
 VAIAK = VAIAK %>%
   mutate(
